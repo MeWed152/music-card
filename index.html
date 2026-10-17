@@ -3,89 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tạo ảnh thẻ Spotify</title>
+<title>Create a music card</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,400;0,600;1,700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#14161a; --panel:#1c1f25; --line:#2c303a; --text:#eef0f4; --mute:#99a0ad; --accent:#1ed760; }
+  :root { --bg:#14161a; --panel:#1b1e25; --line:#272b34; --text:#eef0f4; --mute:#aab0bb; --accent:#00c060; }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 "Segoe UI",system-ui,sans-serif; }
-  .wrap { max-width:980px; margin:0 auto; padding:32px 20px 60px; display:grid; grid-template-columns:minmax(0,360px) minmax(0,1fr); gap:32px; }
-  @media (max-width:760px){ .wrap{grid-template-columns:1fr;} }
-  h1 { font-size:22px; margin:0 0 4px; }
-  p.sub { margin:0 0 20px; color:var(--mute); }
-  label { display:block; margin:14px 0 6px; font-weight:600; font-size:13px; }
-  input[type=text], input[type=url] { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--panel); color:var(--text); font:inherit; }
-  input:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  .row { display:flex; gap:8px; }
-  .row > * { flex:1; }
-  .row.fit > :first-child { flex:0 0 auto; }
-  button { padding:10px 14px; border-radius:8px; border:1px solid var(--line); background:var(--panel); color:var(--text); font:inherit; font-weight:600; cursor:pointer; }
-  button.primary { background:var(--accent); color:#06210f; border-color:var(--accent); }
-  button:hover { filter:brightness(1.1); }
-  .color { display:flex; align-items:center; gap:10px; }
-  input[type=color] { width:44px; height:36px; padding:0; border:1px solid var(--line); border-radius:8px; background:none; }
-  .chk { display:flex; align-items:center; gap:8px; margin-top:14px; font-weight:400; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.4 "Open Sans","Segoe UI",system-ui,sans-serif; }
+  .wrap { max-width:1140px; margin:0 auto; padding:56px 24px 28px; display:grid; grid-template-columns:minmax(0,575px) minmax(0,440px); gap:64px; justify-content:center; }
+  @media (max-width:980px){ .wrap{grid-template-columns:minmax(0,1fr); gap:28px;} }
   .stage { background:repeating-conic-gradient(#20242c 0% 25%, #191c22 0% 50%) 0 0/20px 20px; border-radius:12px; padding:24px; display:flex; justify-content:center; align-items:center; border:1px solid var(--line); }
   canvas { width:100%; max-width:588px; height:auto; display:block; }
-  #msg { min-height:22px; margin-top:12px; color:var(--mute); font-size:13px; }
+  input[type=text], input[type=url] { width:100%; height:60px; padding:0 18px; border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--text); font:inherit; font-size:22px; }
+  input::placeholder { color:#8e949f; }
+  input:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  #fname { margin-top:20px; padding-left:44px; }
+  .bar { display:flex; gap:16px; margin-top:20px; align-items:stretch; }
+  button { height:60px; border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--mute); font:inherit; font-size:26px; cursor:pointer; padding:0 22px; }
+  button:hover { filter:brightness(1.15); }
+  .swatch { flex:0 0 58px; height:60px; border-radius:10px; border:1px solid var(--line); background:var(--panel); display:grid; place-items:center; }
+  .swatch input { width:100%; height:100%; padding:10px; border:0; background:none; cursor:pointer; }
+  .swatch input::-webkit-color-swatch-wrapper { padding:0; }
+  .swatch input::-webkit-color-swatch { border:2px solid #4a4f5a; border-radius:3px; }
+  .swatch input::-moz-color-swatch { border:2px solid #4a4f5a; border-radius:3px; }
+  #pickc { font-size:17px; font-weight:700; font-style:italic; color:#fff; padding:0 14px; }
+  #copy { flex:1; }
+  #dl { flex:1.3; background:var(--accent); color:#fff; border:3px solid #5fd568; }
+  #msg { min-height:22px; margin-top:14px; color:var(--mute); font-size:13px; }
   #msg.err { color:#ff8a80; }
-  .actions { margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; }
+  .title { height:88px; display:grid; place-items:center; background:var(--panel); border:1px solid var(--line); border-radius:10px; font:400 46px/1 Anton,Impact,sans-serif; letter-spacing:1px; color:#fff; }
+  .right label { display:block; margin:14px 0 6px; color:var(--mute); font-size:18px; }
+  .plats { display:flex; justify-content:center; gap:40px; padding:6px 0 60px; }
+  .plat { width:44px; height:44px; padding:0; border:0; border-radius:50%; background:none; }
+  .plat svg { width:44px; height:44px; display:block; }
+  .plat.on { outline:2px solid #fff; outline-offset:4px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div>
-    <h1>Tạo ảnh thẻ Spotify</h1>
-    <p class="sub">Dán link bài hát, chỉnh thông tin, tải ảnh PNG về.</p>
-
-    <label for="url">Link Spotify</label>
-    <div class="row">
-      <input type="url" id="url" value="https://open.spotify.com/track/5C3fx9rdM4Bxf1MSOQC4Ym">
-      <button id="load" class="primary" style="flex:0 0 auto">Lấy thông tin</button>
-    </div>
-
-    <label for="title">Tên bài</label>
-    <input type="text" id="title" value="An Thần">
-
-    <label for="artist">Nghệ sĩ</label>
-    <input type="text" id="artist" value="Low G, Thắng">
-
-    <label for="dur">Thời lượng</label>
-    <input type="text" id="dur" value="02:54">
-
-    <label>Ảnh bìa</label>
-    <div class="row fit">
-      <button id="pick">Chọn ảnh từ máy</button>
-      <span style="align-self:center;color:var(--mute);font-size:13px">hoặc để tự lấy từ link</span>
-    </div>
-    <input type="file" id="file" accept="image/*" hidden>
-
-    <label>Màu nền</label>
-    <div class="color">
-      <input type="color" id="bg" value="#0b5a78">
-      <button id="auto">Lấy màu từ bìa</button>
-    </div>
-
-    <label class="chk"><input type="checkbox" id="round" checked> Bo góc (nền ngoài trong suốt)</label>
-
-    <div class="actions">
-      <button id="dl" class="primary">Tải ảnh PNG</button>
-      <button id="copy">Sao chép ảnh</button>
+  <section>
+    <div class="stage"><canvas id="cv" width="1176" height="696"></canvas></div>
+    <input type="text" id="fname" placeholder="Name">
+    <div class="bar">
+      <label class="swatch"><input type="color" id="bg" value="#0b5a78"></label>
+      <button id="pickc">pick a color</button>
+      <button id="copy">copy</button>
+      <button id="dl">download</button>
     </div>
     <div id="msg"></div>
-  </div>
-
-  <div>
-    <div class="stage"><canvas id="cv" width="1176" height="696"></canvas></div>
-  </div>
+    <input type="file" id="file" accept="image/*" hidden>
+  </section>
+  <section class="right">
+    <div class="title">Create a music card</div>
+    <label for="url">Link music / playlist</label>
+    <input type="url" id="url" placeholder="enter text">
+    <label for="title">Name</label>
+    <input type="text" id="title" placeholder="enter text">
+    <label for="artist">Artist</label>
+    <input type="text" id="artist" placeholder="enter text">
+    <label for="dur">Duration</label>
+    <input type="text" id="dur" placeholder="enter text">
+  </section>
 </div>
+<nav class="plats">
+  <button class="plat" data-p="youtube" title="YouTube" aria-label="YouTube"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#fff"/><rect x="9" y="12.5" width="26" height="19" rx="5.5" fill="#f00"/><path d="M19.5 17.2v9.6l8.3-4.8z" fill="#fff"/></svg></button>
+  <button class="plat" data-p="soundcloud" title="SoundCloud" aria-label="SoundCloud"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#f50"/><g fill="#14161a"><rect x="9" y="20.5" width="2.2" height="7" rx="1.1"/><rect x="12.4" y="17.5" width="2.2" height="11" rx="1.1"/><rect x="15.8" y="15.5" width="2.2" height="13.5" rx="1.1"/><rect x="19.2" y="14" width="2.2" height="15" rx="1.1"/><rect x="22.6" y="13" width="2.2" height="16" rx="1.1"/><rect x="26" y="17" width="3" height="12"/><circle cx="31" cy="22" r="5.4"/><circle cx="34.8" cy="25.2" r="3.8"/><rect x="29" y="24" width="6" height="5"/></g></svg></button>
+  <button class="plat" data-p="apple" title="Apple Music" aria-label="Apple Music"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#fa3b55"/><path d="M16 14l11-2.4v14.4h-2V17.2L18 18.7V29h-2z" fill="#fff"/><ellipse cx="14.8" cy="29.6" rx="3.6" ry="2.8" transform="rotate(-20 14.8 29.6)" fill="#fff"/><ellipse cx="23.8" cy="26.6" rx="3.6" ry="2.8" transform="rotate(-20 23.8 26.6)" fill="#fff"/></svg></button>
+  <button class="plat on" data-p="spotify" title="Spotify" aria-label="Spotify"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="#1ed760"/><g fill="none" stroke="#14161a" stroke-linecap="round"><path d="M11.5 17c7.5-2 15-1.2 21 1.8" stroke-width="3"/><path d="M12.8 22.6c6.3-1.5 12.5-.9 17.7 1.7" stroke-width="2.6"/><path d="M14 27.6c5-1.1 9.4-.7 13.4 1.3" stroke-width="2.2"/></g></svg></button>
+</nav>
 
 <script>
+/* Hỗ trợ các nền tảng: Spotify, YouTube, SoundCloud, Apple Music */
 const W = 392, H = 232, S = 3;
 const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 const $ = id => document.getElementById(id);
-let cover = null;          // HTMLImageElement
+let cover = null;          // HTMLImageElement hoặc canvas
 let userPickedColor = false;
+let platform = 'spotify';
+
+const PLATFORMS = {
+  spotify:    { cta: 'Save on Spotify',       icon: 'plus', bg: '#0b5a78', ph: 'https://open.spotify.com/track/…' },
+  youtube:    { cta: 'Watch on YouTube',      icon: 'play', bg: '#4a1414', ph: 'https://www.youtube.com/watch?v=…' },
+  soundcloud: { cta: 'Listen on SoundCloud',  icon: 'play', bg: '#5a2a10', ph: 'https://soundcloud.com/nghe-si/ten-bai' },
+  apple:      { cta: 'Listen on Apple Music', icon: 'play', bg: '#5a1424', ph: 'https://music.apple.com/vn/album/…?i=…' }
+};
+
+function detect(url) {
+  if (/open\.spotify\.com\//.test(url)) return 'spotify';
+  if (/(youtube\.com|youtu\.be)\//.test(url)) return 'youtube';
+  if (/soundcloud\.com\//.test(url)) return 'soundcloud';
+  if (/music\.apple\.com\//.test(url)) return 'apple';
+  return null;
+}
+
+function setPlatform(p, resetColor) {
+  platform = p;
+  document.querySelectorAll('.plat').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  if (resetColor && !userPickedColor && !cover) $('bg').value = PLATFORMS[p].bg;
+  draw();
+}
 
 function msg(t, err) { const m = $('msg'); m.textContent = t || ''; m.className = err ? 'err' : ''; }
 
@@ -143,8 +159,55 @@ function fit(text, maxW) {
   return text.trimEnd() + '…';
 }
 
+/* ---------- logo từng nền tảng (góc phải trên, tâm 362,38) ---------- */
+function logoSpotify(bg) {
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(362, 38, 10.5, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = bg; ctx.lineCap = 'round';
+  [[-4.6, 2.2, 1.9], [-3.1, 4.6, 1.6], [-1.6, 6.6, 1.3]].forEach(([dy, hw, lw]) => {
+    ctx.lineWidth = lw; ctx.beginPath();
+    ctx.moveTo(362 - hw, 38 + dy + 0.9 * (Math.abs(dy) / 3));
+    ctx.quadraticCurveTo(362, 38 + dy - 2.2, 362 + hw, 38 + dy + 0.9 * (Math.abs(dy) / 3));
+    ctx.stroke();
+  });
+}
+
+function logoYouTube() {
+  ctx.fillStyle = '#f00'; rr(349, 28.5, 26, 19, 5.5); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath();
+  ctx.moveTo(359.5, 33.2); ctx.lineTo(359.5, 42.8); ctx.lineTo(367.8, 38); ctx.closePath(); ctx.fill();
+}
+
+function logoSoundCloud() {
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(362, 38, 10.5, 0, Math.PI * 2); ctx.fill();
+  const o = '#f50';
+  ctx.strokeStyle = o; ctx.fillStyle = o; ctx.lineCap = 'round'; ctx.lineWidth = 1;
+  [3, 5, 6.4, 7.4, 8.2].forEach((h, i) => {
+    const x = 354.6 + i * 1.6;
+    ctx.beginPath(); ctx.moveTo(x, 40.5 - h / 2); ctx.lineTo(x, 40.5 + h / 2); ctx.stroke();
+  });
+  ctx.fillRect(361.4, 34, 3, 8);
+  ctx.beginPath(); ctx.arc(365.4, 39.2, 2.8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(364.2, 37.4, 3.4, 0, Math.PI * 2); ctx.fill();
+}
+
+function logoApple() {
+  const g = ctx.createLinearGradient(0, 27, 0, 49);
+  g.addColorStop(0, '#fb5c74'); g.addColorStop(1, '#fa233b');
+  ctx.fillStyle = g; rr(351, 27, 22, 22, 5.2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.moveTo(358.6, 32.5); ctx.lineTo(358.6, 43); ctx.moveTo(366.4, 31); ctx.lineTo(366.4, 41.2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(358.6, 32); ctx.lineTo(366.4, 30.4); ctx.lineTo(366.4, 33.4); ctx.lineTo(358.6, 35); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(356.9, 43.4, 2.5, 1.9, -0.35, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(364.7, 41.6, 2.5, 1.9, -0.35, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawLogo(bg) {
+  ({ spotify: () => logoSpotify(bg), youtube: logoYouTube, soundcloud: logoSoundCloud, apple: logoApple })[platform]();
+}
+
 function draw() {
   const bg = $('bg').value;
+  const P = PLATFORMS[platform];
   const FONT = '"Circular Std","Circular","Helvetica Neue",Arial,sans-serif';
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, cv.width, cv.height);
@@ -152,7 +215,7 @@ function draw() {
 
   // background
   ctx.fillStyle = bg;
-  if ($('round').checked) { rr(0, 0, W, H, 12); ctx.fill(); } else ctx.fillRect(0, 0, W, H);
+  rr(0, 0, W, H, 12); ctx.fill();
 
   // cover
   ctx.save();
@@ -162,8 +225,9 @@ function draw() {
   ctx.save();
   rr(25, 27, 182, 182, 8); ctx.clip();
   if (cover) {
-    const s = Math.min(cover.naturalWidth, cover.naturalHeight);
-    ctx.drawImage(cover, (cover.naturalWidth - s) / 2, (cover.naturalHeight - s) / 2, s, s, 25, 27, 182, 182);
+    const cw = cover.naturalWidth || cover.width, ch = cover.naturalHeight || cover.height;
+    const s = Math.min(cw, ch);
+    ctx.drawImage(cover, (cw - s) / 2, (ch - s) / 2, s, s, 25, 27, 182, 182);
   } else {
     ctx.fillStyle = '#2a2e36'; ctx.fillRect(25, 27, 182, 182);
     ctx.fillStyle = '#6b7280'; ctx.font = `600 13px ${FONT}`; ctx.textAlign = 'center';
@@ -175,34 +239,33 @@ function draw() {
 
   // title + artist
   ctx.fillStyle = '#fff'; ctx.font = `700 18px ${FONT}`;
-  ctx.fillText(fit($('title').value, 150), 223, 94);
-  ctx.fillStyle = tint(bg); ctx.font = `500 14px ${FONT}`;
-  ctx.fillText(fit($('artist').value, 150), 223, 117);
+  ctx.fillStyle = $('title').value ? '#fff' : 'rgba(255,255,255,.3)';
+  ctx.fillText(fit($('title').value || 'Name', 150), 223, 94);
+  ctx.fillStyle = $('artist').value ? tint(bg) : 'rgba(255,255,255,.2)'; ctx.font = `500 14px ${FONT}`;
+  ctx.fillText(fit($('artist').value || 'Artist', 150), 223, 117);
 
-  // save on spotify
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+  // dòng CTA (Save on Spotify / Watch on YouTube / ...)
+  ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.arc(231, 134, 8, 0, Math.PI * 2); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(231, 130); ctx.lineTo(231, 138); ctx.moveTo(227, 134); ctx.lineTo(235, 134); ctx.stroke();
+  if (P.icon === 'plus') {
+    ctx.beginPath(); ctx.moveTo(231, 130); ctx.lineTo(231, 138); ctx.moveTo(227, 134); ctx.lineTo(235, 134); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(229.2, 130.6); ctx.lineTo(229.2, 137.4); ctx.lineTo(234.8, 134); ctx.closePath(); ctx.fill();
+  }
   ctx.fillStyle = '#fff'; ctx.font = `700 11.5px ${FONT}`;
-  ctx.fillText('Save on Spotify', 247, 138);
+  ctx.fillText(P.cta, 247, 138);
 
   // duration, dots, play
   ctx.fillStyle = '#fff'; ctx.font = `500 11.5px ${FONT}`; ctx.textAlign = 'right';
-  ctx.fillText($('dur').value, 303, 195); ctx.textAlign = 'left';
+  if ($('dur').value.trim()) ctx.fillText($('dur').value, 303, 195);
+  ctx.textAlign = 'left';
   ctx.fillStyle = tint(bg);
   [317, 323, 329].forEach(x => { ctx.beginPath(); ctx.arc(x, 192, 1.5, 0, Math.PI * 2); ctx.fill(); });
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(356, 191, 15, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(352, 184); ctx.lineTo(352, 198); ctx.lineTo(364, 191); ctx.closePath(); ctx.fill();
 
-  // spotify logo
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(362, 38, 10.5, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = bg; ctx.lineCap = 'round';
-  [[-4.6, 2.2, 1.9], [-3.1, 4.6, 1.6], [-1.6, 6.6, 1.3]].forEach(([dy, hw, lw]) => {
-    ctx.lineWidth = lw; ctx.beginPath();
-    ctx.moveTo(362 - hw, 38 + dy + 0.9 * (Math.abs(dy) / 3));
-    ctx.quadraticCurveTo(362, 38 + dy - 2.2, 362 + hw, 38 + dy + 0.9 * (Math.abs(dy) / 3));
-    ctx.stroke();
-  });
+  // logo nền tảng
+  drawLogo(bg);
 }
 
 function setCover(img, keepColor) {
@@ -221,26 +284,96 @@ function loadImage(src, cors) {
   });
 }
 
+async function loadCover(src) {
+  let img;
+  try {
+    const b = await (await fetch(src)).blob();
+    img = await loadImage(URL.createObjectURL(b), false);
+  } catch (e) {
+    img = await loadImage(src, true);
+  }
+  // ảnh YouTube 4:3 có viền đen trên dưới -> cắt về 16:9
+  const w = img.naturalWidth, h = img.naturalHeight;
+  if (platform === 'youtube' && Math.abs(h / w - 0.75) < 0.01) {
+    const c = document.createElement('canvas'); const vh = Math.round(w * 9 / 16);
+    c.width = w; c.height = vh;
+    c.getContext('2d').drawImage(img, 0, Math.round((h - vh) / 2), w, vh, 0, 0, w, vh);
+    return c;
+  }
+  return img;
+}
+
+async function getJson(urls) {
+  let last = 'không rõ';
+  for (const u of urls) {
+    try {
+      const r = await fetch(u);
+      if (r.ok) return await r.json();
+      last = 'HTTP ' + r.status + ' từ ' + new URL(u).hostname;
+    } catch (e) { last = 'bị chặn/mất mạng khi gọi ' + new URL(u).hostname; }
+  }
+  throw new Error(last);
+}
+
+const mmss = ms => { const s = Math.round(ms / 1000); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+
+const FETCHERS = {
+  async spotify(url) {
+    const j = await getJson(['https://open.spotify.com/oembed?url=' + encodeURIComponent(url)]);
+    return { title: j.title, thumb: j.thumbnail_url, note: 'Spotify không trả về nghệ sĩ và thời lượng nên đã để trống, bạn nhập tay nếu muốn hiện.' };
+  },
+  async youtube(url) {
+    const q = encodeURIComponent(url);
+    const j = await getJson(['https://www.youtube.com/oembed?format=json&url=' + q, 'https://noembed.com/embed?url=' + q]);
+    return { title: j.title, artist: (j.author_name || '').replace(/\s*-\s*Topic$/i, ''), thumb: j.thumbnail_url,
+             note: 'YouTube không trả về thời lượng nên đã để trống, bạn nhập tay nếu muốn hiện.' };
+  },
+  async soundcloud(url) {
+    const q = encodeURIComponent(url);
+    const j = await getJson(['https://soundcloud.com/oembed?format=json&url=' + q, 'https://noembed.com/embed?url=' + q]);
+    let title = j.title || '';
+    if (j.author_name && title.endsWith(' by ' + j.author_name)) title = title.slice(0, -(' by ' + j.author_name).length);
+    const thumb = (j.thumbnail_url || '').replace(/-t\d+x\d+\./, '-t500x500.');
+    return { title, artist: j.author_name, thumb, note: 'SoundCloud không trả về thời lượng nên đã để trống, bạn nhập tay nếu muốn hiện.' };
+  },
+  async apple(url) {
+    const u = new URL(url);
+    const id = u.searchParams.get('i') || (u.pathname.match(/\/(?:id)?(\d+)\/?$/) || [])[1];
+    if (!id) throw new Error('no id');
+    const cc = /^[a-z]{2}$/.test(u.pathname.split('/')[1] || '') ? u.pathname.split('/')[1] : 'us';
+    const j = await getJson([`https://itunes.apple.com/lookup?id=${id}&country=${cc}`]);
+    const r = (j.results || [])[0];
+    if (!r) throw new Error('empty');
+    return { title: r.trackName || r.collectionName, artist: r.artistName,
+             dur: r.trackTimeMillis ? mmss(r.trackTimeMillis) : null,
+             thumb: (r.artworkUrl100 || '').replace(/\/\d+x\d+bb/, '/600x600bb'),
+             note: r.trackTimeMillis ? 'Đã lấy đủ tên bài, nghệ sĩ, thời lượng, bìa.' : 'Link album không có thời lượng từng bài nên đã để trống, bạn nhập tay nếu muốn hiện.' };
+  }
+};
+
+let fetchTok = 0;
 async function fetchInfo() {
+  const my = ++fetchTok; userPickedColor = false;
   const url = $('url').value.trim();
-  if (!/open\.spotify\.com\//.test(url)) { msg('Link phải dạng https://open.spotify.com/track/…', true); return; }
+  const p = detect(url);
+  if (!p) { msg('Link chưa đúng: dùng link Spotify, YouTube, SoundCloud hoặc Apple Music.', true); return; }
+  if (p !== platform) { cover = null; setPlatform(p, true); }
   msg('Đang lấy thông tin…');
   try {
-    const r = await fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(url));
-    if (!r.ok) throw new Error('oembed ' + r.status);
-    const j = await r.json();
-    if (j.title) $('title').value = j.title;
-    let img;
-    try {
-      const b = await (await fetch(j.thumbnail_url)).blob();
-      img = await loadImage(URL.createObjectURL(b), false);
-    } catch (e) {
-      img = await loadImage(j.thumbnail_url, true);
+    const info = await FETCHERS[p](url);
+    if (my !== fetchTok) return;
+    // mục nào nền tảng không trả về thì xoá trống, ai cần thì tự nhập tay
+    $('title').value = info.title || '';
+    $('artist').value = info.artist || '';
+    $('dur').value = info.dur || '';
+    draw();
+    if (info.thumb) {
+      try { const im = await loadCover(info.thumb); if (my !== fetchTok) return; setCover(im); }
+      catch (e) { msg('Đã lấy tên bài nhưng không tải được ảnh bìa (' + (e.message || 'lỗi ảnh') + '). Hãy chọn ảnh từ máy.', true); return; }
     }
-    setCover(img);
-    msg('Xong. Tên nghệ sĩ và thời lượng Spotify không trả về, hãy nhập tay.');
+    msg('Xong. ' + (info.note || ''));
   } catch (e) {
-    msg('Không lấy được từ Spotify (cần mở file này trên máy có mạng). Bạn vẫn có thể chọn ảnh bìa từ máy.', true);
+    msg('Không lấy được thông tin: ' + (e.message || 'lỗi không rõ') + '. Bạn vẫn có thể nhập tay và chọn ảnh bìa từ máy.', true);
   }
 }
 
@@ -252,24 +385,32 @@ function toBlob() {
 
 const taintMsg = 'Ảnh bìa bị chặn xuất file (lỗi CORS). Hãy lưu ảnh bìa về máy rồi bấm "Chọn ảnh từ máy".';
 
-$('load').onclick = fetchInfo;
-$('pick').onclick = () => $('file').click();
-$('file').onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  setCover(await loadImage(URL.createObjectURL(f), false));
-  msg('Đã dùng ảnh từ máy.');
-};
-$('auto').onclick = () => { userPickedColor = false; if (cover) { $('bg').value = dominantColor(cover); draw(); } };
+document.querySelectorAll('.plat').forEach(b => b.onclick = () => setPlatform(b.dataset.p, true));
+
+let tmr;
+$('url').oninput = () => { clearTimeout(tmr); tmr = setTimeout(() => { if (detect($('url').value.trim())) fetchInfo(); }, 450); };
+$('url').onkeydown = e => { if (e.key === 'Enter') { clearTimeout(tmr); fetchInfo(); } };
+
+// click vào ảnh bìa trên card (hoặc kéo thả ảnh vào card) để dùng ảnh từ máy
+const inCover = e => { const r = cv.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H; return x >= 25 && x <= 207 && y >= 27 && y <= 209; };
+cv.onmousemove = e => { cv.style.cursor = inCover(e) ? 'pointer' : 'default'; };
+cv.onclick = e => { if (inCover(e)) $('file').click(); };
+async function useFile(f) { if (!f || !f.type.startsWith('image/')) return; setCover(await loadImage(URL.createObjectURL(f), false)); msg('Đã dùng ảnh từ máy.'); }
+$('file').onchange = e => useFile(e.target.files[0]);
+cv.ondragover = e => e.preventDefault();
+cv.ondrop = e => { e.preventDefault(); useFile(e.dataTransfer.files[0]); };
+
+$('pickc').onclick = () => { const c = $('bg'); if (c.showPicker) c.showPicker(); else c.click(); };
 $('bg').oninput = () => { userPickedColor = true; draw(); };
 ['title', 'artist', 'dur'].forEach(id => $(id).oninput = draw);
-$('round').onchange = draw;
 
 $('dl').onclick = async () => {
   try {
     const b = await toBlob();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
-    a.download = ($('title').value.trim() || 'spotify').replace(/[^\p{L}\p{N}]+/gu, '-') + '-spotify.png';
+    const base = $('fname').value.trim() || $('title').value.trim() || 'music-card';
+    a.download = base.replace(/[^\p{L}\p{N}]+/gu, '-') + '-' + platform + '.png';
     a.click(); msg('Đã tải ảnh.');
   } catch (e) { msg(taintMsg, true); }
 };
@@ -277,11 +418,11 @@ $('copy').onclick = async () => {
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': toBlob() })]);
     msg('Đã sao chép ảnh vào clipboard.');
-  } catch (e) { msg('Không sao chép được, hãy dùng nút Tải ảnh PNG.', true); }
+  } catch (e) { msg('Không sao chép được, hãy dùng nút download.', true); }
 };
 
-draw();
-fetchInfo();
+setPlatform('spotify', true);
+msg('Dán link nhạc vào ô bên phải, tự nhận nền tảng. Click ảnh bìa trên card để chọn ảnh từ máy.');
 </script>
 </body>
 </html>
